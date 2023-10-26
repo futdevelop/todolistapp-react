@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import TodoForm from './TodoForm';
 import { v4 as uuidv4 } from 'uuid'; 
 import Todo from './Todo';
@@ -8,24 +8,39 @@ uuidv4();
 const TodoWrapper = () => {
 	const [todos, setTodos] = useState([]); 
 
-	const addTodo = todo => {
-		setTodos([...todos, {id: uuidv4(), task: todo, completed: false, isEditing: false}]);
+	useEffect(() => {
+		const data = window.localStorage.getItem('todos');
+		if(data !== null) setTodos(JSON.parse(data))
+	}, []);
+
+	const saveTodosToLocalStorage = (updatedTodos) => {
+		setTodos(updatedTodos);
+		window.localStorage.setItem('todos', JSON.stringify(updatedTodos));
 	}
 
+  const addTodo = todo => {
+    const updatedTodos = [...todos, { id: uuidv4(), task: todo, completed: false, isEditing: false }];
+		saveTodosToLocalStorage(updatedTodos)
+  }
+
 	const toggleComplete = id => {
-		setTodos(todos.map(todo => todo.id === id ? {...todo, completed: !todo.completed} : todo));
+		const updatedTodos = todos.map(todo => todo.id === id ? {...todos, completed: !todo.completed} : todo);
+		saveTodosToLocalStorage(updatedTodos);
 	};
 
 	const deleteTodo = id => {
-		setTodos(todos.filter(todo => todo.id !== id));
+		const updatedTodos = todos.filter(todo => todo.id !== id);
+		saveTodosToLocalStorage(updatedTodos);
 	}
 
 	const editTodo = id => {
-		setTodos(todos.map(todo => todo.id === id ? {...todo, isEditing: !todo.isEditing} : todo));
+		const updatedTodos = todos.map(todo => todo.id === id ? {...todo, isEditing: !todo.isEditing} : todo);
+		saveTodosToLocalStorage(updatedTodos);
 	}
 
 	const editTask = (task, id) => {
-		setTodos(todos.map(todo => todo.id === id ? {...todo, task, isEditing: !todo.isEditing} : todo));
+		const updatedTodos = todos.map(todo => todo.id === id ? {...todo, task, isEditing: !todo.isEditing} : todo);
+		saveTodosToLocalStorage(updatedTodos);
 	}
  
 	return (
